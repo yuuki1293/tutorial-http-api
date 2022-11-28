@@ -1,0 +1,19 @@
+### 顧客一覧を取得
+GET http://localhost:8080/customer
+
+### idから顧客を取得
+GET http://localhost:8080/customer/1
+
+### 顧客を作成
+POST http://localhost:8080/customer
+Content-Type: application/json
+
+{
+  "id": "1",
+  "firstName": "statically",
+  "lastName": "typed",
+  "email": "yuuki1293@outlook.jp"
+}
+
+### 顧客を削除
+DELETE http://localhost:8080/customer/1
