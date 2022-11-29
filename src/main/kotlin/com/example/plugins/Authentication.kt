@@ -45,6 +45,18 @@ fun Application.configureAuthentication() {
                 userTable[userName]
             }
         }
+
+        form("auth-form") {
+            userParamName = "username"
+            passwordParamName = "password"
+            validate { credentials ->
+                if (credentials.name == "jetbrains" && credentials.password == "foobar") {
+                    UserIdPrincipal(credentials.name)
+                } else {
+                    null
+                }
+            }
+        }
     }
 
     routing {
@@ -55,6 +67,11 @@ fun Application.configureAuthentication() {
         }
         authenticate("auth-digest") {
             get("/auth-digest") {
+                call.respondText("Hello, ${call.principal<UserIdPrincipal>()?.name}!")
+            }
+        }
+        authenticate("auth-form") {
+            post("/auth-form") {
                 call.respondText("Hello, ${call.principal<UserIdPrincipal>()?.name}!")
             }
         }
