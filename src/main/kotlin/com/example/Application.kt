@@ -1,5 +1,6 @@
 package com.example
 
+import com.example.plugins.configureAuthentication
 import com.example.plugins.configureRouting
 import com.example.plugins.configureSerialization
 import io.ktor.server.application.*
@@ -14,4 +15,5 @@ fun main() {
 fun Application.module() {
     configureSerialization()
     configureRouting()
+    configureAuthentication()
 }
