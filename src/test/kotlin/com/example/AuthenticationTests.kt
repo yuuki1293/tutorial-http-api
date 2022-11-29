@@ -19,7 +19,6 @@ class AuthenticationTests {
                 basicAuth("jetbrains", "foobar")
             }
         }
-        println(response.request.url)
         assertEquals(
             "Hello, jetbrains!",
             response.bodyAsText()
