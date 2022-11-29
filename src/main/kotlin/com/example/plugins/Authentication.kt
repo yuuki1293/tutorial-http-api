@@ -1,5 +1,6 @@
 package com.example.plugins
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
@@ -25,7 +26,7 @@ fun Application.configureAuthentication() {
     }
 
     routing {
-        authenticate("auth-basic") {
+        authenticate("auth-basic-hashed") {
             get("/auth-basic") {
                 call.respondText("Hello, ${call.principal<UserIdPrincipal>()?.name}!")
             }
