@@ -42,25 +42,6 @@ fun Application.configureAuthentication() {
     )
     // endregion
 
-    // region jwt
-    val privateKeyString = environment.config.property("jwt.privateKey").getString()
-    val issuer = environment.config.property("jwt.issuer").getString()
-    val audience = environment.config.property("jwt.audience").getString()
-    val jwtRealm = environment.config.property("jwt.realm").getString()
-    val jwkProvider = JwkProviderBuilder(issuer)
-        .cached(10, 24, TimeUnit.HOURS)
-        .rateLimited(10, 1, TimeUnit.MINUTES)
-        .build()
-    install(Authentication) {
-        jwt("auth-jwt") {
-            realm = myRealm
-            verifier(jwkProvider, issuer) {
-                acceptLeeway(3)
-            }
-        }
-    }
-    // endregion
-
     install(Authentication) {
         basic("auth-basic-hashed") {
             realm = "Access to the '/auth-basic' path"
@@ -87,20 +68,6 @@ fun Application.configureAuthentication() {
                 }
             }
         }
-
-        jwt("auth-jwt") {
-            realm = jwtRealm
-            validate { credential ->
-                if (credential.payload.getClaim("username").asString() != "") {
-                    JWTPrincipal(credential.payload)
-                } else {
-                    null
-                }
-            }
-            challenge { defaultScheme, realm ->
-                call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
-            }
-        }
     }
 
     routing {
@@ -117,29 +84,6 @@ fun Application.configureAuthentication() {
         authenticate("auth-form") {
             post("/auth-form") {
                 call.respondText("Hello, ${call.principal<UserIdPrincipal>()?.name}!")
-            }
-        }
-        authenticate("auth-jwt") {
-            post("/auth-jwt") {
-                val user = call.receive<User>()
-                // Check username and password
-                // ...
-                val publicKey = jwkProvider.get("6f8856ed-9189-488f-9011-0ff4b6c08edc").publicKey
-                val keySpecPKCS8 = PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyString))
-                val privateKey = KeyFactory.getInstance("RSA").generatePrivate(keySpecPKCS8)
-                val token = JWT.create()
-                    .withAudience(audience)
-                    .withIssuer(issuer)
-                    .withClaim("username", user.username)
-                    .withExpiresAt(Date(System.currentTimeMillis() + 60000))
-                    .sign(Algorithm.RSA256(publicKey as RSAPublicKey, privateKey as RSAPrivateKey))
-                call.respond(hashMapOf("token" to token))
-            }
-            get("/auth-jwt/hello") {
-                val principal = call.principal<JWTPrincipal>()
-                val username = principal!!.payload.getClaim("username").asString()
-                val expiresAt = principal.expiresAt?.time?.minus(System.currentTimeMillis())
-                call.respondText("Hello, $username! Token is expired at $expiresAt ms.")
             }
         }
     }
