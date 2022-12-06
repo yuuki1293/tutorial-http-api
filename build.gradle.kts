@@ -12,7 +12,7 @@ plugins {
 group = "com.example"
 version = "0.0.1"
 application {
-    mainClass.set("com.example.ApplicationKt")
+    mainClass.set("io.ktor.server.netty.EngineMain")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
@@ -31,6 +31,7 @@ dependencies {
     implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-server-auth-jvm:2.1.3")
+    implementation("io.ktor:ktor-server-config-yaml:$ktor_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
